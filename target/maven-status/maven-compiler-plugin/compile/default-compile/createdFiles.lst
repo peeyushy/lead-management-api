@@ -1,0 +1,13 @@
+com\fhc\leadmanagement\controller\UserController.class
+com\fhc\leadmanagement\LeadManagementApplication.class
+com\fhc\leadmanagement\entity\Lead.class
+com\fhc\leadmanagement\repository\LeadNoteRepository.class
+com\fhc\leadmanagement\service\UserService.class
+com\fhc\leadmanagement\entity\LeadNote.class
+com\fhc\leadmanagement\controller\LeadController.class
+com\fhc\leadmanagement\entity\User.class
+com\fhc\leadmanagement\entity\enums\Role.class
+com\fhc\leadmanagement\entity\enums\LeadStatus.class
+com\fhc\leadmanagement\repository\UserRepository.class
+com\fhc\leadmanagement\repository\LeadRepository.class
+com\fhc\leadmanagement\service\NotificationService.class
