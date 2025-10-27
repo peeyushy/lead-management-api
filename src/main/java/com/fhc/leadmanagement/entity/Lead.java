@@ -39,6 +39,7 @@ public class Lead {
 	@Enumerated(EnumType.STRING)
 	private LeadStatus status;
 
+	@Column(name = "assigned_user_id")
 	// Add assigned user field
 	private Long assignedUserId;
 

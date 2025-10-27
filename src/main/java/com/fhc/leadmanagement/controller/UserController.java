@@ -19,7 +19,7 @@ public class UserController {
 	@Autowired
 	private UserRepository userRepository;
 
-	@PostMapping
+	@PostMapping("/create")
 	public User createUser(@RequestBody User user) {
 		return userService.createUser(user);
 	}

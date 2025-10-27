@@ -1,42 +1,61 @@
 package com.fhc.leadmanagement.entity;
 
-import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
 import com.fhc.leadmanagement.entity.enums.Role;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "users")
 public class User {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
+	@Id
+	@GeneratedValue(strategy = GenerationType.AUTO)
+	private Long id;
 
-    @Column(unique = true, nullable = false)
-    private String username;
+	@Column(unique = true, nullable = false)
+	private String username;
 
-    @Column(nullable = false)
-    private String password;
+	@Column(nullable = false)
+	private String password;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private Role role;
+	@Enumerated(EnumType.STRING)
+	@Column(nullable = false)
+	private Role role;
 
-    private String fullname;
+	private String fullname;
 
-    private String email;
+	private String email;
 
-    private LocalDateTime createdat;
+	private LocalDateTime createdat;
 
-    private LocalDateTime updatedat;
+	private LocalDateTime updatedat;
 
-    // Link to team leader for EXECUTIVE users; null for others
-    @Column(name = "team_leader_id")
-    private Long teamleaderid;
+	// Link to team leader for EXECUTIVE users; null for others
+	@Column(name = "team_leader_id")
+	private Long teamleaderid;
 
-    public User() {
-        this.createdat = LocalDateTime.now();
-    }
+	// One-to-Many relationship with Lead (read-only)
+	@OneToMany(fetch = FetchType.LAZY)
+	@JoinColumn(name = "assigned_user_id", referencedColumnName = "id", insertable = false, updatable = false)
+	private List<Lead> assignedLeads = new ArrayList<>();
+
+	public User() {
+		this.createdat = LocalDateTime.now();
+	}
 
 	/**
 	 * @return the id
@@ -164,6 +183,20 @@ public class User {
 		this.teamleaderid = teamleaderid;
 	}
 
+	/**
+	 * @return the assignedLeads
+	 */
+	public List<Lead> getAssignedLeads() {
+		return assignedLeads;
+	}
+
+	/**
+	 * @param assignedLeads the assignedLeads to set
+	 */
+	public void setAssignedLeads(List<Lead> assignedLeads) {
+		this.assignedLeads = assignedLeads;
+	}
+
 	/* (non-Javadoc)
 	 * @see java.lang.Object#hashCode()
 	 */
@@ -171,6 +204,7 @@ public class User {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
+		result = prime * result + ((assignedLeads == null) ? 0 : assignedLeads.hashCode());
 		result = prime * result + ((createdat == null) ? 0 : createdat.hashCode());
 		result = prime * result + ((email == null) ? 0 : email.hashCode());
 		result = prime * result + ((fullname == null) ? 0 : fullname.hashCode());
@@ -195,6 +229,11 @@ public class User {
 		if (getClass() != obj.getClass())
 			return false;
 		User other = (User) obj;
+		if (assignedLeads == null) {
+			if (other.assignedLeads != null)
+				return false;
+		} else if (!assignedLeads.equals(other.assignedLeads))
+			return false;
 		if (createdat == null) {
 			if (other.createdat != null)
 				return false;
@@ -247,6 +286,6 @@ public class User {
 	public String toString() {
 		return "User [id=" + id + ", username=" + username + ", password=" + password + ", role=" + role + ", fullname="
 				+ fullname + ", email=" + email + ", createdat=" + createdat + ", updatedat=" + updatedat
-				+ ", teamleaderid=" + teamleaderid + "]";
-	}    
+				+ ", teamleaderid=" + teamleaderid + ", assignedLeads=" + assignedLeads + "]";
+	}
 }

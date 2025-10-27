@@ -14,9 +14,7 @@ public class UserService {
     @Autowired
     private UserRepository userRepository;
 
-    public User createUser(User user) {
-        //user.setPassword(passwordEncoder.encode(user.getPassword()));
-        user.setPassword(user.getPassword());
+    public User createUser(User user) {        
         user.setCreatedat(LocalDateTime.now());
         user.setUpdatedat(LocalDateTime.now());
         return userRepository.save(user);
