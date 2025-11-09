@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fhc.leadmanagement.entity.enums.LeadSource;
 import com.fhc.leadmanagement.entity.enums.LeadStatus;
 
 import jakarta.persistence.CascadeType;
@@ -16,6 +17,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 
 @Entity
@@ -32,15 +34,28 @@ public class Lead {
 	@Column(name = "last_name")
 	private String lastName;
 
+	@Column(name = "email")
 	private String email;
 
-	private String phone;
+	@Column(name = "contactno")
+	private String contactno;
+
+	@Column(name = "budget")
+	private String budget;
+
+	@Column(name = "project")
+	private String project;
+
+	@Column(name = "requirement")
+	private String requirement;
 
 	@Enumerated(EnumType.STRING)
 	private LeadStatus status;
 
+	@Enumerated(EnumType.STRING)
+	private LeadSource source;
+
 	@Column(name = "assigned_user_id")
-	// Add assigned user field
 	private Long assignedUserId;
 
 	@Column(name = "created_at")
@@ -49,13 +64,17 @@ public class Lead {
 	@Column(name = "updated_at")
 	private LocalDateTime updatedAt;
 
-	// User who created the lead
+	@Column(name = "createdByUserId")
 	private Long createdByUserId;
 
-	// User who last updated the lead
+	@Column(name = "updatedByUserId")
 	private Long updatedByUserId;
 
-	// One-to-Many relationship to LeadNote
+	// One-to-One relationship to LeadDetails
+	@OneToOne(mappedBy = "lead", cascade = CascadeType.ALL, orphanRemoval = true)
+	@JsonManagedReference
+	private LeadDetails leadDetails;
+
 	@OneToMany(mappedBy = "lead", cascade = CascadeType.ALL, orphanRemoval = true)
 	@JsonManagedReference
 	private List<LeadNote> notes = new ArrayList<>();
@@ -74,7 +93,19 @@ public class Lead {
 
 	public Lead() {
 		this.createdAt = LocalDateTime.now();
-		this.status = LeadStatus.COLD; // default status
+		this.status = LeadStatus.HOT;
+	}
+
+	public void addLeadDetails(LeadDetails details) {
+		this.leadDetails = details;
+		details.setLead(this);
+	}
+
+	public void removeLeadDetails() {
+		if (this.leadDetails != null) {
+			this.leadDetails.setLead(null);
+			this.leadDetails = null;
+		}
 	}
 
 	/**
@@ -134,17 +165,59 @@ public class Lead {
 	}
 
 	/**
-	 * @return the phone
+	 * @return the contactno
 	 */
-	public String getPhone() {
-		return phone;
+	public String getContactno() {
+		return contactno;
 	}
 
 	/**
-	 * @param phone the phone to set
+	 * @param contactno the contactno to set
 	 */
-	public void setPhone(String phone) {
-		this.phone = phone;
+	public void setContactno(String contactno) {
+		this.contactno = contactno;
+	}
+
+	/**
+	 * @return the budget
+	 */
+	public String getBudget() {
+		return budget;
+	}
+
+	/**
+	 * @param budget the budget to set
+	 */
+	public void setBudget(String budget) {
+		this.budget = budget;
+	}
+
+	/**
+	 * @return the project
+	 */
+	public String getProject() {
+		return project;
+	}
+
+	/**
+	 * @param project the project to set
+	 */
+	public void setProject(String project) {
+		this.project = project;
+	}
+
+	/**
+	 * @return the requirement
+	 */
+	public String getRequirement() {
+		return requirement;
+	}
+
+	/**
+	 * @param requirement the requirement to set
+	 */
+	public void setRequirement(String requirement) {
+		this.requirement = requirement;
 	}
 
 	/**
@@ -159,6 +232,20 @@ public class Lead {
 	 */
 	public void setStatus(LeadStatus status) {
 		this.status = status;
+	}
+
+	/**
+	 * @return the source
+	 */
+	public LeadSource getSource() {
+		return source;
+	}
+
+	/**
+	 * @param source the source to set
+	 */
+	public void setSource(LeadSource source) {
+		this.source = source;
 	}
 
 	/**
@@ -232,6 +319,20 @@ public class Lead {
 	}
 
 	/**
+	 * @return the leadDetails
+	 */
+	public LeadDetails getLeadDetails() {
+		return leadDetails;
+	}
+
+	/**
+	 * @param leadDetails the leadDetails to set
+	 */
+	public void setLeadDetails(LeadDetails leadDetails) {
+		this.leadDetails = leadDetails;
+	}
+
+	/**
 	 * @return the notes
 	 */
 	public List<LeadNote> getNotes() {
@@ -245,115 +346,27 @@ public class Lead {
 		this.notes = notes;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see java.lang.Object#hashCode()
-	 */
+	// equals and hashCode based ONLY on id:
+	@Override
+	public boolean equals(Object o) {
+		if (this == o)
+			return true;
+		if (!(o instanceof Lead))
+			return false;
+		Lead lead = (Lead) o;
+		return id != null && id.equals(lead.id);
+	}
+
 	@Override
 	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((assignedUserId == null) ? 0 : assignedUserId.hashCode());
-		result = prime * result + ((createdAt == null) ? 0 : createdAt.hashCode());
-		result = prime * result + ((createdByUserId == null) ? 0 : createdByUserId.hashCode());
-		result = prime * result + ((email == null) ? 0 : email.hashCode());
-		result = prime * result + ((firstName == null) ? 0 : firstName.hashCode());
-		result = prime * result + ((id == null) ? 0 : id.hashCode());
-		result = prime * result + ((lastName == null) ? 0 : lastName.hashCode());
-		result = prime * result + ((notes == null) ? 0 : notes.hashCode());
-		result = prime * result + ((phone == null) ? 0 : phone.hashCode());
-		result = prime * result + ((status == null) ? 0 : status.hashCode());
-		result = prime * result + ((updatedAt == null) ? 0 : updatedAt.hashCode());
-		result = prime * result + ((updatedByUserId == null) ? 0 : updatedByUserId.hashCode());
-		return result;
+		return 31;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see java.lang.Object#equals(java.lang.Object)
-	 */
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		Lead other = (Lead) obj;
-		if (assignedUserId == null) {
-			if (other.assignedUserId != null)
-				return false;
-		} else if (!assignedUserId.equals(other.assignedUserId))
-			return false;
-		if (createdAt == null) {
-			if (other.createdAt != null)
-				return false;
-		} else if (!createdAt.equals(other.createdAt))
-			return false;
-		if (createdByUserId == null) {
-			if (other.createdByUserId != null)
-				return false;
-		} else if (!createdByUserId.equals(other.createdByUserId))
-			return false;
-		if (email == null) {
-			if (other.email != null)
-				return false;
-		} else if (!email.equals(other.email))
-			return false;
-		if (firstName == null) {
-			if (other.firstName != null)
-				return false;
-		} else if (!firstName.equals(other.firstName))
-			return false;
-		if (id == null) {
-			if (other.id != null)
-				return false;
-		} else if (!id.equals(other.id))
-			return false;
-		if (lastName == null) {
-			if (other.lastName != null)
-				return false;
-		} else if (!lastName.equals(other.lastName))
-			return false;
-		if (notes == null) {
-			if (other.notes != null)
-				return false;
-		} else if (!notes.equals(other.notes))
-			return false;
-		if (phone == null) {
-			if (other.phone != null)
-				return false;
-		} else if (!phone.equals(other.phone))
-			return false;
-		if (status != other.status)
-			return false;
-		if (updatedAt == null) {
-			if (other.updatedAt != null)
-				return false;
-		} else if (!updatedAt.equals(other.updatedAt))
-			return false;
-		if (updatedByUserId == null) {
-			if (other.updatedByUserId != null)
-				return false;
-		} else if (!updatedByUserId.equals(other.updatedByUserId))
-			return false;
-		return true;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see java.lang.Object#toString()
-	 */
+	// toString with only id and simple fields, no notes:
 	@Override
 	public String toString() {
-		return "Lead [id=" + id + ", firstName=" + firstName + ", lastName=" + lastName + ", email=" + email
-				+ ", phone=" + phone + ", status=" + status + ", assignedUserId=" + assignedUserId + ", createdAt="
-				+ createdAt + ", updatedAt=" + updatedAt + ", createdByUserId=" + createdByUserId + ", updatedByUserId="
-				+ updatedByUserId + ", notes=" + notes + "]";
+		return "Lead{" + "id=" + id +
+		/* other simple fields here */
+				'}';
 	}
-
 }

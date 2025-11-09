@@ -1,12 +1,12 @@
 INSERT INTO public.users (
     id,
-    created_at,
+    createdat,
     email,
-    full_name,
+    fullname,
     password,
     role,
     team_leader_id,
-    updated_at,
+    updatedat,
     username
 ) VALUES (
     1,
