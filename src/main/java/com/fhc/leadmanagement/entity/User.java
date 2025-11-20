@@ -2,10 +2,15 @@ package com.fhc.leadmanagement.entity;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fhc.leadmanagement.entity.enums.Role;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -15,6 +20,8 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
@@ -52,6 +59,11 @@ public class User {
 	@OneToMany(fetch = FetchType.LAZY)
 	@JoinColumn(name = "assigned_user_id", referencedColumnName = "id", insertable = false, updatable = false)
 	private List<Lead> assignedLeads = new ArrayList<>();
+
+	@ManyToMany(cascade = { CascadeType.PERSIST, CascadeType.MERGE })
+	@JoinTable(name = "user_subscription_map", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "subscription_id"))
+	@JsonManagedReference
+	private Set<Subscriptions> subscriptions = new HashSet<>();
 
 	public User() {
 		this.createdat = LocalDateTime.now();
@@ -197,29 +209,26 @@ public class User {
 		this.assignedLeads = assignedLeads;
 	}
 
-	/* (non-Javadoc)
-	 * @see java.lang.Object#hashCode()
+	/**
+	 * @return the subscriptions
 	 */
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((assignedLeads == null) ? 0 : assignedLeads.hashCode());
-		result = prime * result + ((createdat == null) ? 0 : createdat.hashCode());
-		result = prime * result + ((email == null) ? 0 : email.hashCode());
-		result = prime * result + ((fullname == null) ? 0 : fullname.hashCode());
-		result = prime * result + ((id == null) ? 0 : id.hashCode());
-		result = prime * result + ((password == null) ? 0 : password.hashCode());
-		result = prime * result + ((role == null) ? 0 : role.hashCode());
-		result = prime * result + ((teamleaderid == null) ? 0 : teamleaderid.hashCode());
-		result = prime * result + ((updatedat == null) ? 0 : updatedat.hashCode());
-		result = prime * result + ((username == null) ? 0 : username.hashCode());
-		return result;
+	public Set<Subscriptions> getSubscriptions() {
+		return subscriptions;
 	}
 
-	/* (non-Javadoc)
-	 * @see java.lang.Object#equals(java.lang.Object)
+	/**
+	 * @param subscriptions the subscriptions to set
 	 */
+	public void setSubscriptions(Set<Subscriptions> subscriptions) {
+		this.subscriptions = subscriptions;
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(assignedLeads, createdat, email, fullname, id, password, role, subscriptions, teamleaderid,
+				updatedat, username);
+	}
+
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -229,63 +238,19 @@ public class User {
 		if (getClass() != obj.getClass())
 			return false;
 		User other = (User) obj;
-		if (assignedLeads == null) {
-			if (other.assignedLeads != null)
-				return false;
-		} else if (!assignedLeads.equals(other.assignedLeads))
-			return false;
-		if (createdat == null) {
-			if (other.createdat != null)
-				return false;
-		} else if (!createdat.equals(other.createdat))
-			return false;
-		if (email == null) {
-			if (other.email != null)
-				return false;
-		} else if (!email.equals(other.email))
-			return false;
-		if (fullname == null) {
-			if (other.fullname != null)
-				return false;
-		} else if (!fullname.equals(other.fullname))
-			return false;
-		if (id == null) {
-			if (other.id != null)
-				return false;
-		} else if (!id.equals(other.id))
-			return false;
-		if (password == null) {
-			if (other.password != null)
-				return false;
-		} else if (!password.equals(other.password))
-			return false;
-		if (role != other.role)
-			return false;
-		if (teamleaderid == null) {
-			if (other.teamleaderid != null)
-				return false;
-		} else if (!teamleaderid.equals(other.teamleaderid))
-			return false;
-		if (updatedat == null) {
-			if (other.updatedat != null)
-				return false;
-		} else if (!updatedat.equals(other.updatedat))
-			return false;
-		if (username == null) {
-			if (other.username != null)
-				return false;
-		} else if (!username.equals(other.username))
-			return false;
-		return true;
+		return Objects.equals(assignedLeads, other.assignedLeads) && Objects.equals(createdat, other.createdat)
+				&& Objects.equals(email, other.email) && Objects.equals(fullname, other.fullname)
+				&& Objects.equals(id, other.id) && Objects.equals(password, other.password) && role == other.role
+				&& Objects.equals(subscriptions, other.subscriptions)
+				&& Objects.equals(teamleaderid, other.teamleaderid) && Objects.equals(updatedat, other.updatedat)
+				&& Objects.equals(username, other.username);
 	}
 
-	/* (non-Javadoc)
-	 * @see java.lang.Object#toString()
-	 */
 	@Override
 	public String toString() {
 		return "User [id=" + id + ", username=" + username + ", password=" + password + ", role=" + role + ", fullname="
 				+ fullname + ", email=" + email + ", createdat=" + createdat + ", updatedat=" + updatedat
-				+ ", teamleaderid=" + teamleaderid + ", assignedLeads=" + assignedLeads + "]";
+				+ ", teamleaderid=" + teamleaderid + ", assignedLeads=" + assignedLeads + ", subscriptions="
+				+ subscriptions + "]";
 	}
 }
