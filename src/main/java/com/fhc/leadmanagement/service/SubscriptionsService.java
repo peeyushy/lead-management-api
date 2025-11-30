@@ -18,14 +18,14 @@ import com.fhc.leadmanagement.repository.UserRepository;
 public class SubscriptionsService {
 
 	@Autowired
-	private SubscriptionsRepository subscriptionsRepository;
+	private SubscriptionsRepository subscriptionRepository;
 
 	@Autowired
 	private UserRepository userRepository;
 
 	@Transactional
 	public void addOrUpdateUserSubscription(Long userId, Subscriptions subscriptionDto) {
-		Optional<Subscriptions> existingSubOpt = subscriptionsRepository.findByEndpoint(subscriptionDto.getEndpoint());
+		Optional<Subscriptions> existingSubOpt = subscriptionRepository.findByEndpoint(subscriptionDto.getEndpoint());
 		User user = userRepository.findById(userId).orElseThrow(() -> new IllegalArgumentException("User not found"));
 
 		Subscriptions subscription;
@@ -44,7 +44,7 @@ public class SubscriptionsService {
 			subscription.setUsers(users);
 		}
 
-		subscriptionsRepository.save(subscription);
+		subscriptionRepository.save(subscription);
 	}
 
 	public Set<Subscriptions> getUserSubscriptions(Long userId) {
@@ -89,6 +89,11 @@ public class SubscriptionsService {
 
 	@Transactional(readOnly = true)
 	public List<Subscriptions> getAllSubscriptions() {
-		return subscriptionsRepository.findAll();
+		return subscriptionRepository.findAll();
 	}
+
+	@Transactional
+    public void removeUserMappings(Long userId) {
+		subscriptionRepository.deleteMappingsByUserId(userId);
+    }
 }

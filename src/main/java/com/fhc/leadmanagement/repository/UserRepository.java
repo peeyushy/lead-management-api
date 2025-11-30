@@ -15,7 +15,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
 	// Find user by ID (default method)
 	Optional<User> findById(Long id);
 
-	// Get list of executives under a given team leader	
+	// Get list of executives under a given team leader
 	@Query("SELECT u FROM User u WHERE u.teamleaderid = :teamLeaderId AND u.role = 'EXECUTIVE'")
 	List<User> findExecutivesByTeamLeaderId(@Param("teamLeaderId") Long teamLeaderId);
 
